@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+{% for cat, msg in get_flashed_messages(True) %}
+<div class="flash {{cat}}">{{msg}}</div>
+{% endfor %}
+
+{% if login != null %}
+    <p> Registration completed successfully! </p>
+{% endif %}
+<form action="" method="post" class="form-contact">
+    <div class="field">
+        <label>Login: </label>
+        <input type="text" name="login" placeholder="Login" value="" required />
+    </div>
+    <div class="field">
+        <label>Password: </label>
+        <input type="password" name="psw" placeholder="Password" value="" required />
+    </div>
+    <p><input type="submit" value="Log in" />
+</form>
+{% endblock %}

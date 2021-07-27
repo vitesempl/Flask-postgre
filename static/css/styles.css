@@ -1,0 +1,16 @@
+body {
+  font-size: 125%;
+}
+input {
+    position: relative
+    font-size: 125%;
+}
+div.field {
+  padding-bottom: 10px;
+}
+div.field label {
+  display: block;
+  float: left;
+  width: 100px;
+  height: 15px;
+}

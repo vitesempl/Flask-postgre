@@ -1,0 +1,98 @@
+[
+  {
+    "first_name": "Александр",
+    "last_name": "Лобаскин",
+    "patronymic": "Андреевич",
+    "birthday": "10/11/1997",
+    "email": "ravelraise@gmail.com",
+    "phone": "79817595896",
+    "login": "vitesempl"
+  },
+  {
+    "first_name": "Валентин",
+    "last_name": "Гурьев",
+    "patronymic": "Александрович",
+    "birthday": "04/12/1997",
+    "email": "vitesempl@gmail.com",
+    "phone": "79817595823",
+    "login": "bashlak"
+  },
+  {
+    "first_name": "Алексей",
+    "last_name": "Зырянов",
+    "patronymic": "Саламович",
+    "birthday": "04/12/1990",
+    "email": "pashka@gmail.com",
+    "phone": "78005553535",
+    "login": "pashka"
+  },
+  {
+    "first_name": "Мария",
+    "last_name": "Никонова",
+    "patronymic": "Михайловна",
+    "birthday": "18/10/2001",
+    "email": "debil@mail.ru",
+    "phone": "79743842234",
+    "login": "debil"
+  },
+  {
+    "first_name": "Валера",
+    "last_name": "Карпин",
+    "patronymic": "Сергеевич",
+    "birthday": "01/07/1981",
+    "email": "test@test.com",
+    "phone": "79239482344",
+    "login": "karpin"
+  },
+  {
+    "first_name": "Антон",
+    "last_name": "Птушкин",
+    "patronymic": "Алексеевич",
+    "birthday": "09/02/1976",
+    "phone": "79237592738",
+    "login": "ptushkin"
+  },
+  {
+    "first_name": "Максим",
+    "last_name": "Беляев",
+    "patronymic": "Андреевич",
+    "birthday": "29/09/1998",
+    "email": "test123@test321.com",
+    "login": "belyaev"
+  },
+  {
+    "first_name": "Лошара",
+    "last_name": "Ошибка",
+    "patronymic": "Кекыч",
+    "birthday": "29/09/1998",
+    "login": "belyaev"
+  },
+  {
+    "first_name": "Андрей",
+    "last_name": "Мальцев",
+    "patronymic": "Сергеевич",
+    "phone": "79032937458",
+    "login": "lolkek"
+  },
+  {
+    "first_name": "Светлана",
+    "last_name": "Климкина",
+    "patronymic": "Алексеевна",
+    "email": "klimkina@mail.ru",
+    "login": "klimkina"
+  },
+  {
+    "first_name": "Лошара",
+    "last_name": "Ошибка",
+    "patronymic": "Кекыч",
+    "email": "klimkina@mail.ru",
+    "login": "belyaev"
+  },
+  {
+    "first_name": "Глох",
+    "last_name": "Нос",
+    "patronymic": "Прикинь",
+    "email": "gloh@mail.ru",
+    "login": "gloh"
+  }
+]

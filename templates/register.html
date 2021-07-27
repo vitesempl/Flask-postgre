@@ -1,0 +1,50 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+{% for cat, msg in get_flashed_messages(True) %}
+<div class="flash {{cat}}">{{msg}}</div>
+{% endfor %}
+
+<form action="" method="post" class="form-contact">
+    <div class="field">
+        <label>Last name: </label>
+        <input type="text" name="lname" placeholder="Last name" value="" pattern="[A-Za-zА-Яа-яЁё]{,50}"
+               maxlength="50" required />
+    </div>
+    <div class="field">
+        <label>First name: </label>
+        <input type="text" name="fname" placeholder="First name" value="" pattern="[A-Za-zА-Яа-яЁё]{,50}"
+               maxlength="50" required />
+    </div>
+    <div class="field">
+        <label>Patronymic: </label>
+        <input type="text" name="patr" placeholder="Patronymic" value="" pattern="[A-Za-zА-Яа-яЁё]{,50}"
+               maxlength="50" required />
+    </div>
+    <div class="field">
+        <label>Birthday: </label>
+        <input type="text" name="birthday" placeholder="Birthday" value="" title="Date (Format: MM/DD/YYYY)"
+               pattern="(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)\d\d">
+    </div>
+    <div class="field">
+        <label>Email: </label>
+        <input type="text" name="email" placeholder="Email" value="" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+               title="*@*.{2-4 letters}" maxlength="50" required />
+    </div>
+    <div class="field">
+        <label>Phone: </label>
+        <input type="text" name="phone" placeholder="Phone" value="" pattern="[0-9]{10}" title="9+{9 numbers}" required />
+    </div>
+    <div class="field">
+        <label>Login: </label>
+        <input type="text" name="login" placeholder="Login" value="" pattern="[A-Za-z]{,50}" title="English letters"
+               maxlength="50" required />
+    </div>
+    <div class="field">
+        <label>Password: </label>
+        <input type="password" name="psw" placeholder="Password" value="" pattern="[0-9A-Za-z]{6,}"
+               title="Password length: min 6 chars (English letters or numbers)" required />
+    </div>
+    <p><input type="submit" value="Register" />
+</form>
+{% endblock %}

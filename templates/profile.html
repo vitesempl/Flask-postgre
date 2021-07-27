@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <h2>Hello, you are logged in.</h2>
+    <li>First Name: {{ profile.fname }}</li>
+    <li>Last Name: {{ profile.lname }}</li>
+    <li>Patronymic: {{ profile.patr }}</li>
+    {% if profile.birthday != None %}
+        <li>Birthday: {{ profile.birthday.strftime('%d-%m-%Y') }}</li>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Main</title>
+    <link type="text/css" href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+</head>
+<body>
+<ul class="main_menu">
+    <li> <a href="{{ url_for('index') }}">Main page</a> </li>
+    {% if user == null %}
+        <li> <a href="{{ url_for('register') }}">Sign in</a> </li>
+        <li> <a href="{{ url_for('login') }}">Log in</a> </li>
+    {% else %}
+        <li> <a href="{{ url_for('profile') }}">Profile</a> </li>
+        <p> You're logged in as user "{{ user.login }}". <a href="{{ url_for('logout') }}">Press here to logout</a> </p>
+    {% endif %}
+</ul>
+
+<div class="content">
+    {% block content %}
+    {% endblock %}
+</div>
+
+</body>
+</html>
