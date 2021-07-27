@@ -4,8 +4,11 @@ from os import listdir
 
 
 def post_json(file):
-    with open(file, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    try:
+        with open(file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except:
+        data = ""
 
     response = requests.post('http://127.0.0.1:5000/useradd', json=data)
     print("Code:", response.status_code)

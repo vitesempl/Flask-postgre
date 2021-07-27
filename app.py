@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+import logging
 
 from sqlalchemy_utils import database_exists, create_database
 
@@ -19,11 +20,15 @@ if not database_exists(database_url):
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'secret_key'
+app.config['SECRET_KEY'] = 'e56b0e9364067f9bf44a56e17c3c5ac3a598bf68'
 
 db = SQLAlchemy(app)
 
 login_manager = LoginManager(app)
+
+handler = logging.FileHandler("test.log")  # Create the file logger
+app.logger.addHandler(handler)             # Add it to the built-in logger
+app.logger.setLevel(logging.DEBUG)         # Set the log level to debug
 
 
 @login_manager.user_loader
@@ -78,7 +83,41 @@ class Profiles(db.Model):
         return f"<profiles {self.id}>"
 
 
-@app.route('/')
+class ResCodes(db.Model):
+    __tablename__ = 'codes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.Integer, nullable=True)
+    method = db.Column(db.String(10), nullable=True)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
+    description = db.Column(db.String(500), nullable=True)
+
+    def __repr__(self):
+        return f"<codes {self.id}>"
+
+    def db_commit(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            print('Error database add')
+
+
+class BadUsers(db.Model):
+    __tablename__ = 'bad_users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    code_id = db.Column(db.Integer, db.ForeignKey('codes.id'))
+    object_id = db.Column(db.Integer, nullable=True)
+    login = db.Column(db.String(50), unique=True)
+    description = db.Column(db.String(500), nullable=True)
+
+    def __repr__(self):
+        return f"<bad_users {self.id}>"
+
+
+@app.route('/', methods=["GET"])
 def index():
     if current_user.is_authenticated:
         return render_template("index.html", title="Main page", user=current_user)
@@ -221,8 +260,7 @@ def useradd():
                         print('Телефон уже существует')
                         continue
                     else:
-                        u = Users(email=email, phone=phone,
-                                  login=login)
+                        u = Users(email=email, phone=phone, login=login)
                         psw = u.set_password()
                         print("{} {} {} {} {} {} {} {}".format(fname, lname, patr, bd, email, phone, login, psw))
                         try:
@@ -249,11 +287,28 @@ def useradd():
                     continue
 
         if len(users_data) == 0:
-            return Response('Bad request! Users haven\'t been created.', 400, mimetype='text/plain')
+            res = "Bad request! Users haven\'t been created."
+            code = ResCodes(code=400, method="POST", description=res)
+            code.db_commit()
+
+            return Response(res, 400, mimetype='text/plain')
         else:
+            if len(users_data) == len(request_data):
+                res = "All users have been created."
+            else:
+                res = "Not all users have been created"
+            code = ResCodes(code=200, method="POST", description=res)
+            code.db_commit()
+
             users_json = json.dumps(users_data)
             return Response(users_json, 200, mimetype='application/json')
         # return "Successfull commits: " + str(ncommits) + "\nError objects: " + str(nerrors)
+    else:
+        res = "Bad request! JSON file is empty."
+        code = ResCodes(code=400, method="POST", description=res)
+        code.db_commit()
+
+        return Response(res, 400, mimetype='text/plain')
 
 
 @app.errorhandler(404)
