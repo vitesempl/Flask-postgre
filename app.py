@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Res
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
+from sqlalchemy_utils import database_exists, create_database
+
 from werkzeug.security import generate_password_hash, check_password_hash
 from secrets import choice
 import string
@@ -10,8 +12,12 @@ import json
 
 from datetime import datetime
 
+database_url = "postgresql+psycopg2://postgres:111097@localhost/users"
+if not database_exists(database_url):
+    create_database(database_url)
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:111097@localhost/users'
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secret_key'
 
@@ -27,7 +33,7 @@ def load_user(user_id):
 
 
 class Users(db.Model, UserMixin):
-    #__tablename__ = 'users'
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(50), unique=True)
@@ -39,8 +45,8 @@ class Users(db.Model, UserMixin):
     def __repr__(self):
         return f"<users {self.id}>"
 
-    def hash_password(self, psw):
-        self.password_hash = generate_password_hash(psw)
+    def hash_password(self, password):
+        self.password_hash = generate_password_hash(password)
 
     def set_password(self):
         char_classes = (string.ascii_lowercase,
@@ -58,6 +64,8 @@ class Users(db.Model, UserMixin):
 
 
 class Profiles(db.Model):
+    __tablename__ = 'profiles'
+
     id = db.Column(db.Integer, primary_key=True)
     fname = db.Column(db.String(50), nullable=True)
     lname = db.Column(db.String(50), nullable=True)
