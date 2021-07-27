@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Res
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import logging
+from sqlalchemy import exc
 
 from sqlalchemy_utils import database_exists, create_database
 
@@ -101,7 +102,6 @@ class ResCodes(db.Model):
             db.session.commit()
         except:
             db.session.rollback()
-            print('Error database add')
 
 
 class BadUsers(db.Model):
@@ -110,11 +110,18 @@ class BadUsers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code_id = db.Column(db.Integer, db.ForeignKey('codes.id'))
     object_id = db.Column(db.Integer, nullable=True)
-    login = db.Column(db.String(50), unique=True)
+    login = db.Column(db.String(50), nullable=True)
     description = db.Column(db.String(500), nullable=True)
 
     def __repr__(self):
         return f"<bad_users {self.id}>"
+
+    def db_commit(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except:
+            db.session.rollback()
 
 
 @app.route('/', methods=["GET"])
@@ -138,7 +145,7 @@ def register():
         psw = request.form.get('psw')
         u.hash_password(psw)
 
-        print(email, phone, login, psw)
+        # print(email, phone, login, psw)
         try:
             db.session.add(u)
             db.session.flush()
@@ -156,11 +163,9 @@ def register():
             db.session.commit()
 
             return redirect(url_for('login', login=login))
-        except:
+        except exc.IntegrityError as e:
             db.session.rollback()
-            print('Ошибка добавления в БД')
-
-            flash("Bad user information! Try again.", "error")
+            flash('Error adding to database! ' + e)
 
     return render_template("register.html", title="Sign in")
 
@@ -179,10 +184,10 @@ def login():
                 login_user(user)
                 return redirect(url_for('profile'))
             else:
-                print("Wrong password")
+                # print("Wrong password")
                 flash("Неверный пароль", "error")
         else:
-            print("Wrong login")
+            # print("Wrong login")
             flash("Неверный логин", "error")
 
     return render_template("login.html", title="Log in")
@@ -209,16 +214,16 @@ def useradd():
     if isinstance(request_data, dict):
         request_data = [request_data]
 
-    ncommits = 0
-    nerrors = 0
-
     if request_data:
         users_data = []
         bad_logins = []
+
+        num = 0
         for person in request_data:
+            num += 1
             if not('login' in person):
-                print('Not enough information, login missing!')
-                nerrors += 1
+                # print('Not enough information, login missing!')
+                bad_logins.append([num, None, 'Not enough information, login missing!'])
                 continue
             else:
                 login = person['login']
@@ -248,21 +253,21 @@ def useradd():
 
                     # Проверка корректности введенных данных
                     if db.session.query(db.exists().where(Users.login == login)).scalar():
-                        bad_logins.append(login)
-                        print('Логин уже существует')
+                        bad_logins.append([num, login, 'Error! Login is already in the database.'])
+                        # print('Логин уже существует')
                         continue
                     elif db.session.query(db.exists().where(Users.email == email)).scalar() and email is not None:
-                        bad_logins.append(login)
-                        print('e-mail уже существует')
+                        bad_logins.append([num, login, 'Error! E-mail is already in the database.'])
+                        # print('e-mail уже существует')
                         continue
                     elif db.session.query(db.exists().where(Users.phone == phone)).scalar() and phone is not None:
-                        bad_logins.append(login)
-                        print('Телефон уже существует')
+                        bad_logins.append([num, login, 'Error! Phone is already in the database.'])
+                        # print('Телефон уже существует')
                         continue
                     else:
                         u = Users(email=email, phone=phone, login=login)
                         psw = u.set_password()
-                        print("{} {} {} {} {} {} {} {}".format(fname, lname, patr, bd, email, phone, login, psw))
+                        # print("{} {} {} {} {} {} {} {}".format(fname, lname, patr, bd, email, phone, login, psw))
                         try:
                             db.session.add(u)
                             db.session.flush()
@@ -273,17 +278,16 @@ def useradd():
                             db.session.add(p)
                             db.session.commit()
 
-                            ncommits += 1
                             user_info = {'login': login, 'password': psw}
                             users_data.append(user_info)
-                        except:
+                        except exc.IntegrityError as e:
                             db.session.rollback()
-                            print('Error database add')
-                            nerrors += 1
+                            bad_logins.append([num, login, 'Error adding to database! '+e])
                             continue
                 else:
-                    bad_logins.append(login)
-                    print('Not enough information! User with login', login, 'wasn\'t created')
+                    bad_logins.append([num, login, 'Error! Not enough information, '
+                                                   'You should fill in the fields name, email or phone!'])
+                    # print('Not enough information! User with login', login, 'wasn\'t created')
                     continue
 
         if len(users_data) == 0:
@@ -291,18 +295,30 @@ def useradd():
             code = ResCodes(code=400, method="POST", description=res)
             code.db_commit()
 
+            for u in bad_logins:
+                bu = BadUsers(code_id=code.id, object_id=u[0], login=u[1], description=u[2])
+                bu.db_commit()
+
             return Response(res, 400, mimetype='text/plain')
         else:
             if len(users_data) == len(request_data):
                 res = "All users have been created."
+
+                code = ResCodes(code=200, method="POST", description=res)
+                code.db_commit()
             else:
-                res = "Not all users have been created"
-            code = ResCodes(code=200, method="POST", description=res)
-            code.db_commit()
+                res = "Not all users have been created (created by {} of {} users)".format(str(len(users_data)),
+                                                                                           str(len(request_data)))
+
+                code = ResCodes(code=200, method="POST", description=res)
+                code.db_commit()
+
+                for u in bad_logins:
+                    bu = BadUsers(code_id=code.id, object_id=u[0], login=u[1], description=u[2])
+                    bu.db_commit()
 
             users_json = json.dumps(users_data)
             return Response(users_json, 200, mimetype='application/json')
-        # return "Successfull commits: " + str(ncommits) + "\nError objects: " + str(nerrors)
     else:
         res = "Bad request! JSON file is empty."
         code = ResCodes(code=400, method="POST", description=res)

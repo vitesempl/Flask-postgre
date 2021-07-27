@@ -12,10 +12,10 @@ def post_json(file):
 
     response = requests.post('http://127.0.0.1:5000/useradd', json=data)
     print("Code:", response.status_code)
+    print("Output:", response.headers.get('Content-Type'))
 
     if response.status_code == 200:
         json_response = json.loads(response.content)
-        print("Output:", response.headers.get('Content-Type'))
         for user in json_response:
             print(user)
     elif response.status_code == 400:
