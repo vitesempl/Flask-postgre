@@ -152,7 +152,7 @@ def register():
 
             bd = request.form.get('birthday')
             if bd != '':
-                bd = datetime.strptime(bd, "%d.%m.%Y").strftime("%Y-%m-%d %H:%M")
+                bd = datetime.strptime(bd, "%d/%m/%Y").strftime("%Y-%m-%d %H:%M")
             else:
                 bd = None
 
@@ -197,7 +197,12 @@ def login():
 @login_required
 def profile():
     user_info = db.session.query(Profiles).filter(Profiles.user_id == current_user.id).scalar()
-    return render_template("profile.html", title="Profile", user=current_user, profile=user_info)
+    
+    codes = db.session.query(ResCodes).all()
+    bu = db.session.query(BadUsers).all()
+
+    return render_template("profile.html", title="Profile",
+                           user=current_user, profile=user_info, codes=codes, bad_users=bu)
 
 
 @app.route('/logout', methods=["GET", "POST"])
@@ -286,7 +291,7 @@ def useradd():
                             continue
                 else:
                     bad_logins.append([num, login, 'Error! Not enough information, '
-                                                   'You should fill in the fields name, email or phone!'])
+                                                   'name and email or phone are missing!'])
                     # print('Not enough information! User with login', login, 'wasn\'t created')
                     continue
 
@@ -320,7 +325,7 @@ def useradd():
             users_json = json.dumps(users_data)
             return Response(users_json, 200, mimetype='application/json')
     else:
-        res = "Bad request! JSON file is empty."
+        res = "Bad request! JSON file is empty or broken."
         code = ResCodes(code=400, method="POST", description=res)
         code.db_commit()
 
