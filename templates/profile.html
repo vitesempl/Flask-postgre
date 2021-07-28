@@ -10,6 +10,8 @@
     {% endif %}
 
     <h2>/useradd statistics</h2>
+    <p> Press here to export stats as <a href="{{ url_for('exportexcel') }}">XLSX file</a>
+                                        <a href="{{ url_for('exporttxt') }}">TXT file</a></p>
     {% if codes != None %}
         <table border="1">
             <tr>

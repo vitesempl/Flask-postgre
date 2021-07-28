@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, Response
+from flask import Flask, render_template, request, redirect, url_for, flash, Response, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import logging
@@ -12,6 +12,8 @@ import string
 
 import json
 
+import pandas as pd
+
 from datetime import datetime
 
 database_url = "postgresql+psycopg2://postgres:111097@localhost/users"
@@ -22,6 +24,10 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'e56b0e9364067f9bf44a56e17c3c5ac3a598bf68'
+
+UPLOAD_FOLDER = 'uploads/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 db = SQLAlchemy(app)
 
@@ -34,7 +40,7 @@ app.logger.setLevel(logging.DEBUG)         # Set the log level to debug
 
 @login_manager.user_loader
 def load_user(user_id):
-    print("Loading user", user_id)
+    print("Loading user id:", user_id)
     return db.session.query(Users).filter(Users.id == user_id).scalar()
 
 
@@ -197,7 +203,7 @@ def login():
 @login_required
 def profile():
     user_info = db.session.query(Profiles).filter(Profiles.user_id == current_user.id).scalar()
-    
+
     codes = db.session.query(ResCodes).all()
     bu = db.session.query(BadUsers).all()
 
@@ -332,13 +338,67 @@ def useradd():
         return Response(res, 400, mimetype='text/plain')
 
 
+def to_dict(row):
+    if row is None:
+        return None
+
+    rtn_dict = dict()
+    keys = row.__table__.columns.keys()
+    for key in keys:
+        rtn_dict[key] = getattr(row, key)
+    return rtn_dict
+
+
+def exportdata():
+    data1, data2 = ResCodes.query.all(), BadUsers.query.all()
+    codes_list = [to_dict(item) for item in data1]
+    bad_users_list = [to_dict(item) for item in data2]
+    df1 = pd.DataFrame(codes_list)
+    df2 = pd.DataFrame(bad_users_list)
+
+    return df1, df2
+
+
+@app.route('/useradd/export/excel', methods=['GET'])
+@login_required
+def exportexcel():
+    df1, df2 = exportdata()
+
+    filename = app.config['UPLOAD_FOLDER'] + "stats_useradd_rescodes.xlsx"
+
+    writer = pd.ExcelWriter(filename)
+    df1.to_excel(writer, sheet_name='Response status codes')
+    df2.to_excel(writer, sheet_name='Bad request users')
+    writer.save()
+
+    return send_file(filename)
+
+
+@app.route('/useradd/export/txt', methods=['GET'])
+@login_required
+def exporttxt():
+    df1, df2 = exportdata()
+
+    pd.set_option('display.width', None)
+    pd.set_option('display.max_colwidth', 100)
+
+    filename = app.config['UPLOAD_FOLDER'] + "stats_useradd_rescodes.txt"
+
+    with open(filename, 'w') as f:
+        f.write(df1.__repr__())
+        f.write('\n\n')
+        f.write(df2.__repr__())
+
+    return send_file(filename)
+
+
 @app.errorhandler(404)
 def pageNot(error):
     return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
-    db.drop_all()
+    #db.drop_all()
     db.create_all()
     app.run(debug=True)
 
