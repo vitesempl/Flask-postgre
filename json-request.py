@@ -25,3 +25,5 @@ def post_json(file):
 path = "json_examples/"
 for json_file in listdir(path):
     post_json(path+json_file)
+
+# post_json(path+"error_example_5.json")

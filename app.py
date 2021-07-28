@@ -15,6 +15,7 @@ import json
 import pandas as pd
 
 from datetime import datetime
+from dateutil import parser
 
 database_url = "postgresql+psycopg2://postgres:111097@localhost/users"
 if not database_exists(database_url):
@@ -140,44 +141,56 @@ def index():
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
+    error = None
     if request.method == 'POST':
         # Проверка корректности введенных данных
         email = request.form.get('email')
         phone = request.form.get('phone')
         login = request.form.get('login')
 
-        u = Users(email=email, phone=phone,
-                  login=login)
-        psw = request.form.get('psw')
-        u.hash_password(psw)
+        birthday = request.form.get('birthday')
+        if birthday:
+            bd = parser.parse(birthday).strftime("%Y-%m-%d %H:%M")
+        else:
+            bd = None
 
-        # print(email, phone, login, psw)
-        try:
-            db.session.add(u)
-            db.session.flush()
+        # Проверка корректности введенных данных
+        if db.session.query(db.exists().where(Users.login == login)).scalar():
+            error = 'Error! Login is already in the database.'
+        elif db.session.query(db.exists().where(Users.email == email)).scalar() and email is not None:
+            error = 'Error! E-mail is already in the database.'
+        elif db.session.query(db.exists().where(Users.phone == phone)).scalar() and phone is not None:
+            error = 'Error! Phone is already in the database.'
+        else:
+            u = Users(email=email, phone=phone,
+                      login=login)
+            psw = request.form.get('psw')
+            u.hash_password(psw)
 
-            bd = request.form.get('birthday')
-            if bd != '':
-                bd = datetime.strptime(bd, "%d/%m/%Y").strftime("%Y-%m-%d %H:%M")
-            else:
-                bd = None
+            try:
+                db.session.add(u)
+                db.session.flush()
 
-            p = Profiles(lname=request.form.get('lname'), fname=request.form.get('fname'),
-                         patr=request.form.get('patr'), birthday=bd,
-                         user_id=u.id)
-            db.session.add(p)
-            db.session.commit()
+                p = Profiles(lname=request.form.get('lname'), fname=request.form.get('fname'),
+                             patr=request.form.get('patr'), birthday=bd,
+                             user_id=u.id)
+                db.session.add(p)
+                db.session.commit()
 
-            return redirect(url_for('login', login=login))
-        except exc.IntegrityError as e:
-            db.session.rollback()
-            flash('Error adding to database! ' + e)
+                login_user(u)
 
-    return render_template("register.html", title="Sign in")
+                return redirect(url_for('profile'))
+            except exc.IntegrityError as e:
+                db.session.rollback()
+                error = 'Error adding to database! ' + str(e)
+
+    return render_template("register.html", title="Sign in", error=error)
 
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
+    error = None
+
     if request.method == 'POST':
         login = request.form.get('login')
         psw = request.form.get('psw')
@@ -191,12 +204,12 @@ def login():
                 return redirect(url_for('profile'))
             else:
                 # print("Wrong password")
-                flash("Неверный пароль", "error")
+                error = "Неверный пароль"
         else:
             # print("Wrong login")
-            flash("Неверный логин", "error")
+            error = "Неверный логин"
 
-    return render_template("login.html", title="Log in")
+    return render_template("login.html", title="Log in", error=error)
 
 
 @app.route('/profile', methods=["GET", "POST"])
@@ -236,6 +249,9 @@ def useradd():
                 # print('Not enough information, login missing!')
                 bad_logins.append([num, None, 'Not enough information, login missing!'])
                 continue
+            elif len(person['login']) == 0:
+                bad_logins.append([num, None, 'Not enough information, login is empty!'])
+                continue
             else:
                 login = person['login']
                 if ('first_name' in person and 'last_name' in person and
@@ -244,21 +260,42 @@ def useradd():
                     fname = person['first_name']
                     lname = person['last_name']
                     patr = person['patronymic']
+                    if len(fname) == 0 and len(lname) == 0 and len(patr) == 0:
+                        bad_logins.append([num, login, 'Not enough information, full name is missing!'])
+                        continue
 
                     if 'email' in person:
                         email = person['email']
+                        if len(email) == 0:
+                            email = None
                     else:
                         email = None
 
                     if 'phone' in person:
                         phone = person['phone']
+                        try:
+                            phone = int(phone)
+                        except ValueError as e:
+                            bad_logins.append([num, login, 'Error! Phone is not integer!'])
+                            continue
                     else:
                         phone = None
+
+                    if email is None and phone is None:
+                        bad_logins.append([num, login, 'Not enough information, email and phone missing!'])
+                        continue
 
                     # optional attributes
                     if 'birthday' in person:
                         birthday = person['birthday']
-                        bd = datetime.strptime(birthday, "%d/%m/%Y").strftime("%Y-%m-%d %H:%M")
+                        if len(birthday) > 0:
+                            try:
+                                bd = parser.parse(birthday).strftime("%Y-%m-%d %H:%M")
+                            except:
+                                print("Data parse error!")
+                                bd = None
+                        else:
+                            bd = None
                     else:
                         bd = None
 
@@ -297,7 +334,7 @@ def useradd():
                             continue
                 else:
                     bad_logins.append([num, login, 'Error! Not enough information, '
-                                                   'name and email or phone are missing!'])
+                                                   'login, name, email or phone are missing!'])
                     # print('Not enough information! User with login', login, 'wasn\'t created')
                     continue
 
@@ -313,7 +350,8 @@ def useradd():
             return Response(res, 400, mimetype='text/plain')
         else:
             if len(users_data) == len(request_data):
-                res = "All users have been created."
+                res = "All users have been created ({} of {} users)".format(str(len(users_data)),
+                                                                            str(len(request_data)))
 
                 code = ResCodes(code=200, method="POST", description=res)
                 code.db_commit()
@@ -398,7 +436,7 @@ def pageNot(error):
 
 
 if __name__ == '__main__':
-    #db.drop_all()
+    # db.drop_all()
     db.create_all()
     app.run(debug=True)
 

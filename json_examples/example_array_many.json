@@ -5,95 +5,102 @@
     "patronymic": "Андреевич",
     "birthday": "10/11/1997",
     "email": "ravelraise@gmail.com",
-    "phone": "79817595896",
+    "phone": "9817595896",
     "login": "vitesempl"
   },
   {
-    "first_name": "Валентин",
-    "last_name": "Гурьев",
-    "patronymic": "Александрович",
-    "birthday": "04/12/1997",
-    "email": "vitesempl@gmail.com",
-    "phone": "79817595823",
-    "login": "bashlak"
+    "first_name": "Василий",
+    "last_name": "Голубов",
+    "patronymic": "Иванович",
+    "birthday": "06/04/1988",
+    "email": "vasiliy2903@outlook.com",
+    "phone": "9715465044",
+    "login": "vasiliy2903"
   },
   {
-    "first_name": "Алексей",
-    "last_name": "Зырянов",
-    "patronymic": "Саламович",
-    "birthday": "04/12/1990",
-    "email": "pashka@gmail.com",
-    "phone": "78005553535",
-    "login": "pashka"
+    "first_name": "Лидия",
+    "last_name": "Калганова",
+    "patronymic": "Егоровна",
+    "birthday": "09.05.1965",
+    "email": "lidiya4160@mail.ru",
+    "phone": "8005553535"
   },
   {
     "first_name": "Мария",
-    "last_name": "Никонова",
+    "last_name": "Кочнева",
     "patronymic": "Михайловна",
-    "birthday": "18/10/2001",
-    "email": "debil@mail.ru",
-    "phone": "79743842234",
-    "login": "debil"
+    "birthday": "02/02/1970",
+    "email": "kochneva2020@mail.ru",
+    "phone": "9743842234",
+    "login": "kochneva2020"
   },
   {
-    "first_name": "Валера",
-    "last_name": "Карпин",
-    "patronymic": "Сергеевич",
-    "birthday": "01/07/1981",
-    "email": "test@test.com",
-    "phone": "79239482344",
-    "login": "karpin"
-  },
-  {
-    "first_name": "Антон",
-    "last_name": "Птушкин",
+    "first_name": "Константин",
+    "last_name": "Железнов",
     "patronymic": "Алексеевич",
-    "birthday": "09/02/1976",
-    "phone": "79237592738",
-    "login": "ptushkin"
+    "birthday": "07.05.1963",
+    "email": "konstantin1963@ya.ru",
+    "phone": "9239482344",
+    "login": "konstantin1963"
   },
   {
-    "first_name": "Максим",
-    "last_name": "Беляев",
-    "patronymic": "Андреевич",
-    "birthday": "29/09/1998",
-    "email": "test123@test321.com",
-    "login": "belyaev"
+    "first_name": "Кирилл",
+    "last_name": "Репин",
+    "patronymic": "Валерьевич",
+    "birthday": "02/09/1994",
+    "phone": "9237592738",
+    "login": "kirill1994"
   },
   {
-    "first_name": "Лошара",
+    "first_name": "Денис",
+    "last_name": "Забиров",
+    "patronymic": "Евгеньевич",
+    "birthday": "26-11-1983",
+    "email": "denis9985@mail.ru",
+    "login": "denis9985"
+  },
+  {
+    "first_name": "Юрин",
+    "last_name": "Бутусов",
+    "patronymic": "Максимович",
+    "birthday": "15/05/1984",
+    "email": "yurin.butusov@hotmail.com",
+    "login": "konstantin1963"
+  },
+  {
+    "first_name": "Георгий",
+    "last_name": "Юрьев",
+    "patronymic": "Юлианович",
+    "phone": "9032937458",
+    "login": "georgiy15011979"
+  },
+  {
+    "first_name": "Ксения",
+    "last_name": "Рубанова",
+    "patronymic": "Романовна",
+    "email": "kseniya94@ya.ru",
+    "login": "kseniya94"
+  },
+  {
+    "first_name": "Стрельцова",
     "last_name": "Ошибка",
-    "patronymic": "Кекыч",
-    "birthday": "29/09/1998",
-    "email": "test123@test321.com",
-    "login": "belyaev"
+    "patronymic": "Константиновна",
+    "email": "kseniya94@ya.ru",
+    "login": "eva5725"
   },
   {
-    "first_name": "Андрей",
-    "last_name": "Мальцев",
-    "patronymic": "Сергеевич",
-    "phone": "79032937458",
-    "login": "lolkek"
+    "first_name": "Мария",
+    "last_name": "Большова",
+    "patronymic": "Евгеньевна",
+    "email": "mariya49@gmail.com",
+    "login": "mariya49"
   },
   {
-    "first_name": "Светлана",
-    "last_name": "Климкина",
-    "patronymic": "Алексеевна",
-    "email": "klimkina@mail.ru",
-    "login": "klimkina"
-  },
-  {
-    "first_name": "Лошара",
-    "last_name": "Ошибка",
-    "patronymic": "Кекыч",
-    "email": "klimkina@mail.ru",
-    "login": "belyaev"
-  },
-  {
-    "first_name": "Глох",
-    "last_name": "Нос",
-    "patronymic": "Прикинь",
-    "email": "gloh@mail.ru",
-    "login": "gloh"
+    "first_name": "Нина",
+    "last_name": "Смагина",
+    "patronymic": "Тимофеевна",
+    "email": "nina4100@mail.ru",
+    "phone": "9032937458",
+    "login": "nina4100"
   }
 ]

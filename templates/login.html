@@ -1,9 +1,10 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-{% for cat, msg in get_flashed_messages(True) %}
-<div class="flash {{cat}}">{{msg}}</div>
-{% endfor %}
+
+{% if error %}
+    <p class=error><strong>Error:</strong> {{ error }}
+{% endif %}
 
 {% if login != null %}
     <p> Registration completed successfully! </p>
@@ -19,4 +20,5 @@
     </div>
     <p><input type="submit" value="Log in" />
 </form>
+
 {% endblock %}
