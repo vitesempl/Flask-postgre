@@ -1,9 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, Response, send_file
+from flask import Flask, render_template, request, redirect, url_for, Response, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-import logging
-from sqlalchemy import exc
 
+from sqlalchemy import exc
 from sqlalchemy_utils import database_exists, create_database
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -33,10 +32,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = SQLAlchemy(app)
 
 login_manager = LoginManager(app)
-
-handler = logging.FileHandler("test.log")  # Create the file logger
-app.logger.addHandler(handler)             # Add it to the built-in logger
-app.logger.setLevel(logging.DEBUG)         # Set the log level to debug
 
 
 @login_manager.user_loader
