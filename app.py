@@ -16,6 +16,8 @@ import pandas as pd
 from datetime import datetime
 from dateutil import parser
 
+import sys
+
 database_url = "postgresql+psycopg2://postgres:111097@localhost/users"
 if not database_exists(database_url):
     create_database(database_url)
@@ -175,9 +177,12 @@ def register():
                 login_user(u)
 
                 return redirect(url_for('profile'))
-            except exc.IntegrityError as e:
+            except exc.DataError as e:
                 db.session.rollback()
-                error = 'Error adding to database! ' + str(e)
+                error = 'Database DataError! ' + e.args[0]
+            except:
+                db.session.rollback()
+                error = 'Database unexpected error!'
 
     return render_template("register.html", title="Sign in", error=error)
 
@@ -323,9 +328,13 @@ def useradd():
 
                             user_info = {'login': login, 'password': psw}
                             users_data.append(user_info)
-                        except exc.IntegrityError as e:
+                        except exc.DataError as e:
                             db.session.rollback()
-                            bad_logins.append([num, login, 'Error adding to database! '+e])
+                            bad_logins.append([num, login, 'Database DataError! '+e.args[0]])
+                            continue
+                        except:
+                            db.session.rollback()
+                            bad_logins.append([num, login, 'Database unexpected error!'])
                             continue
                 else:
                     bad_logins.append([num, login, 'Error! Not enough information, '
@@ -337,7 +346,6 @@ def useradd():
             res = "Bad request! Users haven\'t been created."
             code = ResCodes(code=400, method="POST", description=res)
             code.db_commit()
-
             for u in bad_logins:
                 bu = BadUsers(code_id=code.id, object_id=u[0], login=u[1], description=u[2])
                 bu.db_commit()
@@ -413,7 +421,7 @@ def exporttxt():
     df1, df2 = exportdata()
 
     pd.set_option('display.width', None)
-    pd.set_option('display.max_colwidth', 100)
+    pd.set_option('display.max_colwidth', 200)
 
     filename = app.config['UPLOAD_FOLDER'] + "stats_useradd_rescodes.txt"
 
@@ -431,7 +439,7 @@ def pageNot(error):
 
 
 if __name__ == '__main__':
-    # db.drop_all()
+    db.drop_all()
     db.create_all()
     app.run(debug=True)
 
