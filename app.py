@@ -16,8 +16,6 @@ import pandas as pd
 from datetime import datetime
 from dateutil import parser
 
-import sys
-
 database_url = "postgresql+psycopg2://postgres:111097@localhost/users"
 if not database_exists(database_url):
     create_database(database_url)
@@ -104,8 +102,14 @@ class ResCodes(db.Model):
         try:
             db.session.add(self)
             db.session.commit()
+        except exc.DataError as e:
+            db.session.rollback()
+            error = 'Database DataError! ' + e.args[0]
+            print(error)
         except:
             db.session.rollback()
+            error = 'Database unexpected error!'
+            print(error)
 
 
 class BadUsers(db.Model):
@@ -124,8 +128,14 @@ class BadUsers(db.Model):
         try:
             db.session.add(self)
             db.session.commit()
+        except exc.DataError as e:
+            db.session.rollback()
+            error = 'Database DataError! ' + e.args[0]
+            print(error)
         except:
             db.session.rollback()
+            error = 'Database unexpected error!'
+            print(error)
 
 
 @app.route('/', methods=["GET"])
@@ -439,7 +449,7 @@ def pageNot(error):
 
 
 if __name__ == '__main__':
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
     app.run(debug=True)
 
